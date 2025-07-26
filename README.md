@@ -63,7 +63,7 @@ To address this, we've introduced a novel approach rooted in **constant-relative
 $$
 U_\gamma(w)=
 \begin{cases}
-\dfrac{w^{1-\gamma}}{\,1-\gamma\,}, & 0\le\gamma<1,\\[6pt]
+\dfrac{w^{1-\gamma}}{\,1-\gamma\,}, & 0\le\gamma<1, \\
 \log w, & \gamma=1
 \end{cases}
 $$
@@ -97,6 +97,29 @@ We need to specify the hyperparameter $\gamma$ to compute the MES. By default, w
 Creating such plots is straightforward and efficient using the built-in functions in the `pm_rank` package.
 
 ## IRT & Bradley-Terry: lens of statistical modeling
+
+In addition to the previously mentioned metrics, we also incorporate statistically-grounded methods such as **Item Response Theory (IRT)** and the **Bradley–Terry (BT) model** to gain deeper insights into LLM performance. Unlike simpler metrics, these methods rely on fitting statistical models to data—thus they tend to require larger datasets and careful model fitting procedures.
+
+### Item Response Theory (IRT)
+
+IRT addresses a critical limitation in simpler scoring methods: equal weighting of all prediction events. Using a slight variant [3] of the [two-parameter logistic (2-PL) IRT model](https://assess.com/what-is-the-two-parameter-irt-2pl-model/), we jointly estimate each LLM’s capability parameter alongside the **difficulty and discrimination parameters** for each prediction event. Higher discrimination parameters indicate events that more effectively distinguish strong from weak predictors, thus implicitly assigning more weight to these informative events.
+
+This approach is highly versatile. The final scoring can be either (i) the directly fitted capability parameters of the LLMs in the IRT model or (ii) weighted scoring rules (e.g. Brier score) using event-level discrimination parameters. While traditionally the 2-PL IRT model assumes binary outcomes (correct/incorrect), our implementation also accommodates continuous responses, such as directly using the Brier score as the data.
+
+Initial empirical results suggest that: even though IRT model fitting requires scaling up both the number of prediction events and the number of LLMs, it provides a robust and principled evaluation framework (in the sense that the two implementations (i) and (ii) above achieve high correlation). Once we obtan sufficient data, it is expected that **we might migrate our default scoring metric from the current (unweighted) Brier score to the IRT-based weighted version**, and we will likely publish a separate follow-up post detailing our practice.
+
+### Generalized Bradley–Terry (BT) Model
+
+The generalized BT model [4] extends traditional pairwise-comparison methods—like those used by [LMArena](https://lmarena.ai/)—to our prediction-market setting. Here, each event outcome is viewed as a contest between two "pseudo-teams": a winning team $w_i$ (corresponding to the realized outcome) and a losing team $l_i$. Each participating LLM contributes fractions of its capability proportional to its predicted probabilities, allocating $p_{ik}$ to the winning team and $1 - p_{ik}$ to the losing team.
+
+We model the winning probability for $E_i$ using the BT formulation:
+
+$$
+\frac{e^{\theta_{w_i}}}{e^{\theta_{w_i}} + e^{\theta_{l_i}}}
+$$
+
+where $\theta_{w_i}$ and $\theta_{l_i}$ are the summed _"fractional"_ capabilities of the winning and losing teams, respectively. Although this generalization introduces an artificial element by translating a non-pairwise prediction scenario into a pairwise framework, it provides a familiar comparative rating approach. Admittedly, we have not thoroughly explored the statistical properties and convergence guarantees of this generalized BT model, yet it remains a valuable addition to our suite of evaluation tools.
+
 ---
 ### References:
 
@@ -105,6 +128,9 @@ Creating such plots is straightforward and efficient using the built-in function
 [2] Xu, Tianyang, et al. "Sayself: Teaching llms to express confidence with self-reflective rationales." In Proceedings of the
 2024 Conference on Empirical Methods in Natural Language Processing, pp. 5985–5998 (2024).
 
+[3] Bo, Yuanchao Emily, et al. "An IRT forecasting model: Linking proper scoring rules to item response theory." Judgment and Decision Making 12.2: 90-103 (2017).
+
+[4] Huang, Tzu-Kuo, et al. "Generalized Bradley-Terry Models and Multi-Class Probability Estimates." Journal of Machine Learning Research 7.1 (2006).
 
 
 
