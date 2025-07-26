@@ -4,6 +4,8 @@
 > **Author:** Sida Li, (add other authors as well who help review this)
 >
 > **Date:** July 26, 2025
+>
+> **Estimated Reading Time:** 9 minutes
 ---
 
 Creating benchmarks and arenas to evaluate large language models (LLMs) is often a labor-intensive and meticulous process. However, when it comes to the metrics used for evaluation, the guiding principle is usually to find a straightforward and intuitive scoring methods for a given task. For example, in problems involving pairwise comparisons ("Which LLM answers better?"), the Elo rating system offers a clean and elegant solution. Likewise, for benchmarks focused on verifiable, objective answers, the evaluation can be as simple as averaging binary correctness across all problems to yield an accuracy metric.
