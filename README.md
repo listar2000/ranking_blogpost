@@ -40,6 +40,7 @@ BS_i \equiv \text{Brier Score for } E_i = \frac{1}{n_i} \sum_{k=1}^{n_i}(p_{ik} 
 $$
 
 where $o_{ik}$ is 1 if outcome $k$ occurred, and 0 otherwise. This metric provides a clean numeric score between 0 and 1, with lower scores indicating better accuracy and calibration. The final (averaged) Brier score is then calculated across all events:
+
 $$
 BS = \frac{1}{N} \sum_{i=1}^{N} BS_i
 $$
