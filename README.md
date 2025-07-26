@@ -1,6 +1,5 @@
 # How We Score & Rank LLMs in Prediction Markets
 
-(Another potential title, or the text on the hyperlink for this article, can be ***how does `ProphetArena` rank the LLMs?*** )
 > **Author:** Sida Li, (add other authors as well who help review this)
 >
 > **Date:** July 26, 2025
@@ -30,22 +29,22 @@ In this post, we'll guide you through the reasoning behind our metric choices an
 
 <!-- include a centered image here -->
 <p align="center">
-<img src="./rank_overview.png" alt="pm_rank package" width="600"/>
+<img src="_static/rank_overview.png" alt="pm_rank package" width="600"/>
 </p>
 
 ## Scoring Rules: grounded metric for probabilistic predictions
 
 **We begin with some setup:** we want to score the LLM's probabilistic predictions for multiple events $E_1,...,E_N$. In each event $i$, there are $n_i$ mutually exclusive potential outcomes (e.g. $n_i = 30$ for the event *"NBA champion in 2026"*). The LLM prediction is then represented as a probability vector $(p_{i1}, p_{i2}, \dots, p_{in_i})$, summing to 1. Once the event outcome is realized—say, outcome $j$—we calculate the prediction accuracy using scoring rules, specifically for the Brier score:
 
-$$
+\begin{equation*}
 BS_i \equiv \text{Brier Score for } E_i = \frac{1}{n_i} \sum_{k=1}^{n_i}(p_{ik} - o_{ik})^2
-$$
+\end{equation*}
 
 where $o_{ik}$ is 1 if outcome $k$ occurred, and 0 otherwise. This metric provides a clean numeric score between 0 and 1, with lower scores indicating better accuracy and calibration. The final (averaged) Brier score is then calculated across all events:
 
-$$
+\begin{equation*}
 BS = \frac{1}{N} \sum_{i=1}^{N} BS_i
-$$
+\end{equation*}
 
 and used as the score to rank the LLMs (the smaller the better).
 
@@ -63,21 +62,21 @@ In real-world prediction markets, practitioners care deeply about **actionable i
 
 To address this, we've introduced a novel approach rooted in **constant-relative-risk-aversion (CRRA) utility theory**. Specifically, we assume a hypothetical scenario where a human fully trusts the LLM’s probabilities as their true beliefs and makes decisions guided solely by their personal risk aversion, captured by the CRRA utility function:
 
-$$
+\begin{equation*}
 U_\gamma(w)=
 \begin{cases}
 \dfrac{w^{1-\gamma}}{\,1-\gamma\,}, & 0\le\gamma<1, \\
 \log w, & \gamma=1
 \end{cases}
-$$
+\end{equation*}
 
 where $\gamma \in [0, 1]$ is a risk-aversion hyperparameter, and $w$ is the amount of money earned after making the bet. A $\gamma = 0$ characterizes a risk-neutral individual, while $\gamma = 1$ represents a logarithmic risk-averse profile. Intermediate values of $\gamma$ represent varying degrees of risk aversion. 
 
 Other than the utility function, two other factors would influence the **optimal betting strategy**:
 
-1. **How much money (total budget) to bet:** for simplicity, we assume in our hypothetical scenarior that the bettor has a fixed budget of \$1 for each event, so the total budget is $N$. In other words, for the $i$-th event, any **action/strategy** can be represented as a vector $a_i = (a_{i1}, a_{i2}, \dots, a_{in_i})$ that sums to 1, where $a_{ik}$ is the amount bet on outcome $k$ of event $i$.
+1. **How much money (total budget) to bet:** for simplicity, we assume in our hypothetical scenarior that the bettor has a fixed budget of **one dollar** for each event, so the total budget is $N$. In other words, for the $i$-th event, any **action/strategy** can be represented as a vector $a_i = (a_{i1}, a_{i2}, \dots, a_{in_i})$ that sums to 1, where $a_{ik}$ is the amount bet on outcome $k$ of event $i$.
 
-2. **The market odds/implied probabilities:** these are the probabilities derived from the (human) market prices of the outcomes, which we denote as $q_{ik}$ for outcome $k$ of event $i$. In simple terms, $q_{ik}$ is the market-consensus price of an "all-or-nothing" contract, which pays \$1 if outcome $k$ occurs and \$0 otherwise. In practice, we retrieve these information from human prediction markets, such as [Kalshi](https://kalshi.com/).
+2. **The market odds/implied probabilities:** these are the probabilities derived from the (human) market prices of the outcomes, which we denote as $q_{ik}$ for outcome $k$ of event $i$. In simple terms, $q_{ik}$ is the market-consensus price of an "all-or-nothing" contract, which pays one dollar if outcome $k$ occurs and zero otherwise. In practice, we retrieve this information from human prediction markets, such as [Kalshi](https://kalshi.com/).
 
 Once these factors are determined, we can determine the optimal strategy $a_i^*$ for event $E_i$ by solving an optimization problem. The _optimality_ is defined in terms of maximizing the expected utility of the bettor, given their risk aversion $\gamma$ and using LLM's predicted probabilities $p_{ik}$ as the true beliefs. While the detailed derivation is beyond the scope of this post, the solution can be expressed in closed and interpretable forms depending on the risk aversion $\gamma$:
 
@@ -87,14 +86,14 @@ Once these factors are determined, we can determine the optimal strategy $a_i^*$
 
 Our money-earning metric then measures the long-term rate of return by following the optimal betting strategy $a_i^*$ across all events. Specifically, we define the **money-earning score (MES)** as:
 
-$$
+\begin{equation*}
 MES := \frac{\sum_{i=1}^{N} \text{payoff from } i\text{-th } \text{event under } a_i^*}{N}.
-$$
+\end{equation*}
 
 We need to specify the hyperparameter $\gamma$ to compute the MES. By default, we follow the risk-neutral case ($\gamma=0$), but our platform also allows users to vary this factor (perhaps based on their own risk preferences). Below we show three moving MES metrics over time (as more and more prediction events are closed) for four LLMs and $\gamma = 0, 0.5, 1$:
 
 <p align="center">
-<img src="./mes.png" alt="Money Earning Score" width="800"/>
+<img src="_static/prophet_arena_risk_curves_0717.png" alt="Money Earning Score" width="800"/>
 </p>
 
 Creating such plots is straightforward and efficient using the built-in functions in the `pm_rank` package.
@@ -117,9 +116,9 @@ The generalized BT model [4] extends traditional pairwise-comparison methods—l
 
 We model the winning probability for $E_i$ using the BT formulation:
 
-$$
+\begin{equation*}
 \frac{e^{\theta_{w_i}}}{e^{\theta_{w_i}} + e^{\theta_{l_i}}}
-$$
+\end{equation*}
 
 where $\theta_{w_i}$ and $\theta_{l_i}$ are the summed _"fractional"_ capabilities of the winning and losing teams, respectively. Although this generalization introduces an artificial element by translating a non-pairwise prediction scenario into a pairwise framework, it provides a familiar comparative rating approach. Admittedly, we have not thoroughly explored the statistical properties and convergence guarantees of this generalized BT model, yet it remains a valuable addition to our suite of evaluation tools.
 
