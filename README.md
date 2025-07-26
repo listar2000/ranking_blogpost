@@ -29,7 +29,7 @@ In this post, we'll guide you through the reasoning behind our metric choices an
 
 <!-- include a centered image here -->
 <p align="center">
-<img src="_static/rank_overview.png" alt="pm_rank package" width="600"/>
+<img src="rank_overview.png" alt="pm_rank package" width="600"/>
 </p>
 
 ## Scoring Rules: grounded metric for probabilistic predictions
@@ -93,7 +93,7 @@ MES := \frac{\sum_{i=1}^{N} \text{payoff from } i\text{-th } \text{event under }
 We need to specify the hyperparameter $\gamma$ to compute the MES. By default, we follow the risk-neutral case ($\gamma=0$), but our platform also allows users to vary this factor (perhaps based on their own risk preferences). Below we show three moving MES metrics over time (as more and more prediction events are closed) for four LLMs and $\gamma = 0, 0.5, 1$:
 
 <p align="center">
-<img src="_static/prophet_arena_risk_curves_0717.png" alt="Money Earning Score" width="800"/>
+<img src="mes.png" alt="Money Earning Score" width="800"/>
 </p>
 
 Creating such plots is straightforward and efficient using the built-in functions in the `pm_rank` package.
