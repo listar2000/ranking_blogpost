@@ -83,8 +83,9 @@ Once these factors are determined, we can determine the optimal strategy $a_i^*$
 * **Intermediate risk aversions ($0 < \gamma < 1$)** smoothly interpolate between these two extremes, providing flexible yet clearly interpretable betting strategies.
 
 Our money-earning metric then measures the long-term rate of return by following the optimal betting strategy $a_i^*$ across all events. Specifically, we define the **money-earning score (MES)** as:
+
 $$
-MES := \frac{\sum_{i=1}^{N} \text{payoff from $i$-th event under $a_i^*$}}{N}.
+MES := \frac{\sum_{i=1}^{N} \text{payoff from } i\text{-th } \text{event under } a_i^*}{N}.
 $$
 
 We need to specify the hyperparameter $\gamma$ to compute the MES. By default, we follow the risk-neutral case ($\gamma=0$), but our platform also allows users to vary this factor (perhaps based on their own risk preferences). Below we show three moving MES metrics over time (as more and more prediction events are closed) for four LLMs and $\gamma = 0, 0.5, 1$:
